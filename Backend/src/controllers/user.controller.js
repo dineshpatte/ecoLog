@@ -3,25 +3,25 @@ import { User } from "../models/user.model.js"
 import ApiError from "../utils/apiError.js"
 import asyncHandler from "../utils/asyncHandler.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
-import ApiError from "../utils/apiError.js"
+
 import { ApiResponse } from "../utils/apiResponse.js"
 
 
-const getAccessAndrefreshTokens = async(userId)=>{
-    try {
-        const user = await  User.findbyId(userId)
-        const accessToken = user.generateAccessToken()
-         const refreshToken = user.generaterefreshToken()
-         user.refsrehToken = refreshToken;
-         await user.save({validationBeforeSave: false})
-         return{accessToken,refreshToken}
-    }
-     catch (error) {
-        throw new ApiError(501,"unable to get refresh and accesstokens")
-        
-    }
-
-}
+const getAccessAndrefreshTokens= async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    user.refreshToken = refreshToken;
+    await user.save({ validationBeforeSave: false });
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(
+      501,
+      "something went wrong whule generating refresh and access tokens"
+    );
+  }
+};
 
 const registeruser = asyncHandler(async (req,res) => {
 
@@ -31,11 +31,11 @@ const registeruser = asyncHandler(async (req,res) => {
         throw new ApiError(402,"both email and username are reuiqred")
     }
 
-    const existedUser = await user.findOne({
+    const existedUser = await User.findOne({
         $or: [{username},{email}]
     })
-    if(!existedUser){
-        throw new ApiError(403,"user is invalid")
+    if(existedUser){
+        throw new ApiError(403,"user is there")
     }
 
     const avatarlocalpath = req.files?.avatar?.[0].path;
@@ -64,20 +64,24 @@ const registeruser = asyncHandler(async (req,res) => {
     
 })
 
-const loginUser = asyncHandler(async (req,res) => {
-    const{username,email,password} = req.body;
-    if(!(username,email)){
-        throw new ApiError(400,"enter username and email")
-    }
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password, username } = req.body;
+  if (!(username || email)) {
+    throw new ApiError(409, "either email or username is required");
+  }
 
-     const user = await User.findOne({
+  const user = await User.findOne({
     $or: [{ username }, { email }],
   });
 
   if (!user) {
     throw new ApiError(404, "user not found");
   }
-   const isPasswordValid = await user.isPasswordCorrect(password);
+
+  console.log("Entered password:", password);
+  console.log("Stored hash:", user.password);
+
+  const isPasswordValid = await user.isPasswordCorrect(password);
 
   console.log("Password match:", isPasswordValid);
 
@@ -85,7 +89,7 @@ const loginUser = asyncHandler(async (req,res) => {
     throw new ApiError(401, "invalid user credentials");
   }
 
-  const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(
+  const { refreshToken, accessToken } = await getAccessAndrefreshTokens(
     user._id
   );
   console.log(user._id);
@@ -96,8 +100,8 @@ const loginUser = asyncHandler(async (req,res) => {
 
   const options = {
     httpOnly: true,
-    secure: true
-  }
+    secure: true,
+  };
 
   return res
     .status(200)
@@ -112,6 +116,7 @@ const loginUser = asyncHandler(async (req,res) => {
       "user logged in successfully"
     );
 });
+
 
     
 const logoutUser = asyncHandler(async (req,res) => {
@@ -136,14 +141,14 @@ const logoutUser = asyncHandler(async (req,res) => {
 
 const getUserprofile = asyncHandler(async (req,res) => {
 
-    const user = await User.findByid(req.user?._id)
+    const user = await User.findById(req.user?._id)
 
     if(!user){
         throw new ApiError(406,"user not found")
     }
 
     return res.status(200)
-    .json(200,"user fetched successfully")
+    .json(new ApiResponse(200,user,"user fetched successfully"))
     
 })
 
@@ -153,18 +158,16 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     throw new ApiError(404, "both emai and fullane are required");
   }
 
-  const user = User.findByIdAndUpdate(
+  const user =await User.findByIdAndUpdate(
     req.user?._id,
-    { $set: { fullname, email: email } },
+    { $set: { username, email: email } },
     { new: true }
   ).select("-password");
 
   return res.status(200).json(
     new ApiResponse(
       200,
-      {
-        user,
-      },
+      user,
       "Account details updated successfully"
     )
   );
@@ -174,9 +177,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   const user = await User.findOne(req.user?._id);
-  const isPasswordCorrect = isPasswordCorrect(oldPassword);
+  const isPasswordvalid =  await user.isPasswordCorrect(oldPassword);
 
-  if (!isPasswordCorrect) {
+  if (!isPasswordvalid) {
     throw new ApiError(400, "invalid password request");
   }
 
@@ -188,6 +191,20 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "password change successfull"));
 });
 
+const deleteUser = asyncHandler(async (req,res) => {
+  const deleteduser = await User.findByIdAndDelete(
+        req.user?._id
+    )
+
+    if(!deleteduser){
+        throw new ApiError(405,"user not found")
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200,"user deleted successfully"))
+    
+})
 
 
-export{changeCurrentPassword,registeruser,loginUser,logoutUser,updateAccountDetails,getUserprofile}
+
+export{changeCurrentPassword,registeruser,loginUser,logoutUser,updateAccountDetails,getUserprofile,deleteUser}
