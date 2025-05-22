@@ -24,7 +24,7 @@ const LogActivity = () => {
   });
 
   const [message, setMessage] = useState('');
-  const [carbonScore, setCarbonScore] = useState(null); 
+  const [carbonScore, setCarbonScore] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -78,17 +78,31 @@ const LogActivity = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setCarbonScore(null);
 
     try {
       const response = await api.post('/activities/logactivity', form, {
         withCredentials: true,
       });
+
+      const newScore = response.data.data.carbonScore;
+      setCarbonScore(newScore);
       setMessage('Activity logged successfully!');
-      
-      setCarbonScore(response.data.data.carbonScore); 
-      localStorage.setItem('carbonScore', response.data.data.carbonScore);
+
+      const existingHistory = JSON.parse(localStorage.getItem("carbonHistory")) || [];
+      const filteredHistory = existingHistory.filter(entry => entry.date !== form.date);
+
+      const newEntry = {
+        date: form.date,
+        carbonScore: newScore,
+      };
+
+      filteredHistory.push(newEntry);
+      localStorage.setItem("carbonHistory", JSON.stringify(filteredHistory));
 
       localStorage.setItem('lastActivity', JSON.stringify(form));
+
     } catch (error) {
       setMessage('Failed to log activity: ' + (error.response?.data?.message || error.message));
     }

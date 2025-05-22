@@ -1,59 +1,41 @@
-import mongoose,{Schema} from "mongoose"
+import mongoose from "mongoose";
 
-const activityShema = mongoose.Schema({
-    userId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"User"
+const activitySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: Date, required: true },
+  transport: [
+    {
+      mode: String,
+      distanceKm: Number,
     },
-     date: {
-    type: Date,
-    required: true
-  },
-
-  transport: [{
-    mode: { type: String },           // e.g., 'car', 'bike', 'walk', 'public'
-    distanceKm: { type: Number }      // Distance in kilometers
-  }],
-
+  ],
   food: {
-    meatServings: { type: Number },
-    dairyServings: { type: Number },
-    vegetarianServings: { type: Number },
-    veganServings: { type: Number },
-    localProducePercent: { type: Number }, // % of food that's local
+    meatServings: Number,
+    dairyServings: Number,
+    vegetarianServings: Number,
+    veganServings: Number,
+    localProducePercent: Number,
   },
-
-energy: {
-  energySource: {
-    type: String,
-    enum: ['mostly renewable', 'some renewable', 'no renewable', 'unknown'],
-    default: 'unknown'
+  energy: {
+    energySource: String,
+    electricityKwh: Number,
+    gasKwh: Number,
+    renewablePercent: Number,
   },
-  electricityKwh: { type: Number, default: 0 },
-  gasKwh: { type: Number, default: 0 },
-  renewablePercent: { type: Number, default: 0 } 
-},
-
-waste: {
-  wasteType: {
-    type: String,
-    enum: ['mostly recycled', 'some recycled', 'no recycling', 'unknown'],
-    default: 'unknown'
+  waste: {
+    wasteType: String,
+    recycledKg: Number,
+    compostedKg: Number,
+    landfillKg: Number,
   },
-  recycledKg: { type: Number, default: 0 },
-  compostedKg: { type: Number, default: 0 },
-  landfillKg: { type: Number, default: 0 }
-},
+  otherEcoActions: [String],
+  carbonScore: Number,
 
-  otherEcoActions: [String], // e.g., ['planted tree', 'used reusable bag']
+  // Add these new numeric fields:
+  transportScore: { type: Number, default: 0 },
+  foodScore: { type: Number, default: 0 },
+  energyScore: { type: Number, default: 0 },
+  wasteScore: { type: Number, default: 0 },
+});
 
-  carbonScore: {
-    type: Number,
-    default: 0
-  },
-
-  
-
-},{timestamps: true})
-
-export const Activity = mongoose.model("Activity",activityShema)
+export const Activity = mongoose.model("Activity", activitySchema);
