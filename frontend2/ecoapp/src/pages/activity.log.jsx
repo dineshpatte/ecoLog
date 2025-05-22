@@ -24,7 +24,7 @@ const LogActivity = () => {
   });
 
   const [message, setMessage] = useState('');
-  const [carbonScore, setCarbonScore] = useState(null); // ✅ Added
+  const [carbonScore, setCarbonScore] = useState(null); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;

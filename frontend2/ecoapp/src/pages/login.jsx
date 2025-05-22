@@ -21,9 +21,9 @@ const Login = () => {
       const res = await api.post('/users/login', form);
 
       console.log('Login successful:', res.data);
-     localStorage.setItem('user', JSON.stringify(res.data.data.user));
-        localStorage.setItem('accessToken', res.data.data.accessToken);
-        localStorage.setItem('refreshToken', res.data.data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(res.data.data.user));
+      localStorage.setItem('accessToken', res.data.data.accessToken);
+      localStorage.setItem('refreshToken', res.data.data.refreshToken);
 
       navigate('/');
     } catch (err) {
@@ -66,6 +66,21 @@ const Login = () => {
           Login
         </button>
       </form>
+
+      <div className="mt-6 flex justify-between">
+        <button
+          onClick={() => navigate('/changepassword')}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Change Password
+        </button>
+        <button
+          onClick={() => navigate('/updatedetails')}
+          className="text-sm text-blue-600 hover:underline"
+        >
+          Update Details
+        </button>
+      </div>
     </div>
   );
 };
