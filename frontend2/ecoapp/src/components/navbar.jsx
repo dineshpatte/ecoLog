@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react"; // Lucide logout icon
-import api from "../api"; // Axios instance
+import { LogOut } from "lucide-react"; 
+import api from "../api"; 
 
 const Navbar = () => {
   const navigate = useNavigate();
