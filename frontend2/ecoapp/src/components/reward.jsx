@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const Rewards = () => {
+const Rewards = ({ onTotalUpdate }) => {
   const [reward, setReward] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -31,8 +31,23 @@ const Rewards = () => {
         );
 
         if (res.data.data) {
-          setReward(res.data.data);
+          const today = new Date().toISOString().slice(0, 10);
+          const newReward = res.data.data;
+
+          const storedRaw = localStorage.getItem("dailyRewards");
+          const stored = storedRaw ? JSON.parse(storedRaw) : {};
+          stored[today] = newReward;
+          localStorage.setItem("dailyRewards", JSON.stringify(stored));
+
+          setReward(newReward);
           setMessage(res.data.message);
+          if (onTotalUpdate) {
+            const sum = Object.values(stored).reduce(
+              (acc, reward) => acc + (typeof reward?.points === "number" ? reward.points : 0),
+              0
+            );
+            onTotalUpdate(sum);
+          }
         } else {
           setReward(null);
           setMessage(res.data.message || "No rewards available");
@@ -45,22 +60,22 @@ const Rewards = () => {
     };
 
     fetchReward();
-  }, []);
+  }, [onTotalUpdate]);
 
-  if (loading) return <p>Loading rewards...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
+  if (loading) return <p className="text-center text-gray-500">Loading rewards...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
 
   return (
-    <div>
-      <h2>Rewards</h2>
+    <div className="max-w-md mx-auto p-6 bg-yellow-50 rounded-lg shadow-md mt-6">
+      <h2 className="text-2xl font-semibold mb-4 text-yellow-800 text-center">🎁 Rewards</h2>
       {reward ? (
-        <div>
-          <h3>{reward.title}</h3>
-          <p>{reward.description}</p>
-          <p>Points: {reward.points}</p>
+        <div className="bg-yellow-100 p-4 rounded-md shadow-inner">
+          <h3 className="text-xl font-bold mb-2">{reward.title}</h3>
+          <p className="mb-2 text-yellow-900">{reward.description}</p>
+          <p className="font-semibold">Points: <span className="text-yellow-700">{reward.points}</span></p>
         </div>
       ) : (
-        <p>{message}</p>
+        <p className="text-center text-yellow-700">{message}</p>
       )}
     </div>
   );

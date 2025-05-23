@@ -37,16 +37,16 @@ const Tips = () => {
     fetchTips();
   }, []);
 
-  if (loading) return <p>Loading tips...</p>;
-  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
-  if (tips.length === 0) return <p>No tips available</p>;
+  if (loading) return <p className="text-center text-gray-500">Loading tips...</p>;
+  if (error) return <p className="text-center text-red-600">{error}</p>;
+  if (tips.length === 0) return <p className="text-center text-gray-400">No tips available</p>;
 
   return (
-    <div>
-      <h2>Daily Eco Tips</h2>
-      <ul>
+    <div className="max-w-xl mx-auto p-6 bg-green-50 rounded-lg shadow-md mt-6">
+      <h2 className="text-2xl font-semibold mb-4 text-green-700 text-center">🌿 Daily Eco Tips</h2>
+      <ul className="list-disc list-inside space-y-2 text-gray-700">
         {tips.map((tip, idx) => (
-          <li key={idx}>{tip}</li>
+          <li key={idx} className="hover:text-green-900 transition-colors">{tip}</li>
         ))}
       </ul>
     </div>

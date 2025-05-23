@@ -24,17 +24,18 @@ const CarbonTrendChart = () => {
     labels: [],
     datasets: [],
   });
-
-  useEffect(() => {
-    const history = JSON.parse(localStorage.getItem("carbonHistory")) || [];
-    console.log("Raw carbonHistory from localStorage:", history);
+useEffect(() => {
+  const loadHistory = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?._id;
+    const historyKey = userId ? `carbonHistory_${userId}` : "carbonHistory";
+    const history = JSON.parse(localStorage.getItem(historyKey)) || [];
 
     const sorted = history.sort((a, b) => new Date(a.date) - new Date(b.date));
-    const labels = sorted.map((entry) => entry.date);
-    const scores = sorted.map((entry) => Number(entry.carbonScore));
-
-    console.log("Sorted Dates:", labels);
-    console.log("Carbon Scores:", scores);
+    const labels = sorted.map((entry) =>
+      new Date(entry.date).toLocaleDateString()
+    );
+    const scores = sorted.map((entry) => Number(entry.carbonScore ?? 0));
 
     setChartData({
       labels,
@@ -51,7 +52,17 @@ const CarbonTrendChart = () => {
         },
       ],
     });
-  }, []);
+  };
+
+  loadHistory(); // initial load
+  window.addEventListener("carbonHistoryUpdated", loadHistory); // listen for updates
+
+  return () => {
+    window.removeEventListener("carbonHistoryUpdated", loadHistory);
+  };
+}, []);
+
+
 
   return (
     <div className="max-w-3xl mx-auto p-4 mt-6 bg-white shadow rounded">

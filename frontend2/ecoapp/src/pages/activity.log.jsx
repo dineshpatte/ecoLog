@@ -24,7 +24,6 @@ const LogActivity = () => {
   });
 
   const [message, setMessage] = useState('');
-  const [carbonScore, setCarbonScore] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -78,31 +77,24 @@ const LogActivity = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setCarbonScore(null);
 
     try {
       const response = await api.post('/activities/logactivity', form, {
         withCredentials: true,
       });
 
-      const newScore = response.data.data.carbonScore;
-      setCarbonScore(newScore);
-      setMessage('Activity logged successfully!');
+      const { carbonScore } = response.data.data;
 
-      const existingHistory = JSON.parse(localStorage.getItem("carbonHistory")) || [];
-      const filteredHistory = existingHistory.filter(entry => entry.date !== form.date);
+      // Save score to localStorage
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user?._id;
+      const key = `carbonHistory_${userId}`;
+      const history = JSON.parse(localStorage.getItem(key)) || [];
+      history.push({ date: form.date, carbonScore });
+      localStorage.setItem(key, JSON.stringify(history));
 
-      const newEntry = {
-        date: form.date,
-        carbonScore: newScore,
-      };
-
-      filteredHistory.push(newEntry);
-      localStorage.setItem("carbonHistory", JSON.stringify(filteredHistory));
-
-      localStorage.setItem('lastActivity', JSON.stringify(form));
-
+      setMessage(`Activity logged! Your carbon score is ${carbonScore}`);
+      setTimeout(() => window.location.reload(), 1500); // Optionally reload
     } catch (error) {
       setMessage('Failed to log activity: ' + (error.response?.data?.message || error.message));
     }
@@ -112,10 +104,12 @@ const LogActivity = () => {
     <div className="max-w-lg mx-auto p-4 bg-white rounded shadow mt-10">
       <h2 className="text-xl font-semibold mb-4">Log Your Eco Activity</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Date input */}
         <div>
-          <label>Date:</label>
+          <label htmlFor="date">Date:</label>
           <input
             type="date"
+            id="date"
             name="date"
             value={form.date}
             onChange={handleChange}
@@ -124,6 +118,7 @@ const LogActivity = () => {
           />
         </div>
 
+        {/* Transport */}
         <div>
           <label>Transport Modes & Distances:</label>
           {form.transport.map((t, idx) => (
@@ -164,70 +159,38 @@ const LogActivity = () => {
           </button>
         </div>
 
+        {/* Food */}
         <div>
-          <label>Meat Servings:</label>
-          <input
-            type="number"
-            name="food.meatServings"
-            value={form.food.meatServings}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded"
-          />
+          <h3 className="font-semibold">Food Servings:</h3>
+          {[
+            ['meatServings', 'Meat'],
+            ['dairyServings', 'Dairy'],
+            ['vegetarianServings', 'Vegetarian'],
+            ['veganServings', 'Vegan'],
+            ['localProducePercent', '% Local Produce'],
+          ].map(([key, label]) => (
+            <div key={key}>
+              <label htmlFor={key}>{label}:</label>
+              <input
+                id={key}
+                type="number"
+                name={`food.${key}`}
+                value={form.food[key]}
+                onChange={handleChange}
+                min="0"
+                max={key === 'localProducePercent' ? '100' : undefined}
+                className="w-full p-2 border rounded"
+              />
+            </div>
+          ))}
         </div>
 
+        {/* Energy */}
         <div>
-          <label>Dairy Servings:</label>
-          <input
-            type="number"
-            name="food.dairyServings"
-            value={form.food.dairyServings}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label>Vegetarian Servings:</label>
-          <input
-            type="number"
-            name="food.vegetarianServings"
-            value={form.food.vegetarianServings}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label>Vegan Servings:</label>
-          <input
-            type="number"
-            name="food.veganServings"
-            value={form.food.veganServings}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label>Local Produce Percent:</label>
-          <input
-            type="number"
-            name="food.localProducePercent"
-            value={form.food.localProducePercent}
-            onChange={handleChange}
-            min="0"
-            max="100"
-            className="w-full p-2 border rounded"
-          />
-        </div>
-
-        <div>
-          <label>Energy Source:</label>
+          <h3 className="font-semibold">Energy Usage:</h3>
+          <label htmlFor="energySource">Energy Source:</label>
           <select
+            id="energySource"
             name="energy.energySource"
             value={form.energy.energySource}
             onChange={handleChange}
@@ -240,11 +203,10 @@ const LogActivity = () => {
             <option value="no renewable">No renewable</option>
             <option value="other">Other</option>
           </select>
-        </div>
 
-        <div>
-          <label>Electricity Usage (kWh):</label>
+          <label htmlFor="electricityKwh">Electricity (kWh):</label>
           <input
+            id="electricityKwh"
             type="number"
             name="energy.electricityKwh"
             value={form.energy.electricityKwh}
@@ -252,11 +214,10 @@ const LogActivity = () => {
             min="0"
             className="w-full p-2 border rounded"
           />
-        </div>
 
-        <div>
-          <label>Gas Usage (kWh):</label>
+          <label htmlFor="gasKwh">Gas (kWh):</label>
           <input
+            id="gasKwh"
             type="number"
             name="energy.gasKwh"
             value={form.energy.gasKwh}
@@ -266,9 +227,11 @@ const LogActivity = () => {
           />
         </div>
 
+        {/* Waste */}
         <div>
-          <label>Waste Type:</label>
+          <label htmlFor="wasteType">Waste Type:</label>
           <select
+            id="wasteType"
             name="waste.wasteType"
             value={form.waste.wasteType}
             onChange={handleChange}
@@ -283,9 +246,11 @@ const LogActivity = () => {
           </select>
         </div>
 
+        {/* Eco Actions */}
         <div>
-          <label>Other Eco Actions (comma separated):</label>
+          <label htmlFor="ecoActions">Other Eco Actions (comma separated):</label>
           <input
+            id="ecoActions"
             type="text"
             onChange={handleEcoActionsChange}
             placeholder="e.g. used reusable bag, planted tree"
@@ -300,12 +265,7 @@ const LogActivity = () => {
           Log Activity
         </button>
 
-        {message && <p className="mt-3 text-center text-red-600">{message}</p>}
-        {carbonScore !== null && (
-          <p className="mt-1 text-center text-lg text-green-700 font-bold">
-            Your Carbon Score: {carbonScore}
-          </p>
-        )}
+        {message && <p className="mt-3 text-center text-green-600 font-semibold">{message}</p>}
       </form>
     </div>
   );

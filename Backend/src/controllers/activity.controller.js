@@ -159,11 +159,10 @@ const logActivity = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, newLog, "Activity logged successfully"));
 });
-
 const getActivityByUser = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
-  const userActivity = await Activity.find({ userId });
+  const userActivity = await Activity.find({ user: userId });
 
   if (!userActivity || userActivity.length === 0) {
     throw new ApiError(403, "User activity is not available");
@@ -173,6 +172,7 @@ const getActivityByUser = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, userActivity, "Activities fetched successfully"));
 });
+
 
 const getActivityByDate = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
