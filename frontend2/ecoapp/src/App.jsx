@@ -10,6 +10,7 @@ import LogActivity from "./pages/activity.log";
 import Dashboard from "./pages/Dashboard";
 import ChangePassword from "./pages/changepassword";
 import UpdateAccount from "./pages/changedetails";
+import About from "./pages/about";
 
 // Optional: remove these if not meant to be separate routes
 // import Tips from "./components/tip";
@@ -30,6 +31,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/changepassword" element={<ChangePassword />} />
             <Route path="/updatedetails" element={<UpdateAccount />} />
+            <Route path="/about" element={<About />} />
 
             {/* Remove these routes unless you want separate pages for Tips or Rewards */}
             {/* <Route path="/tips" element={<Tips />} />

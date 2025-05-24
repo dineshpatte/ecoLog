@@ -43,7 +43,7 @@ const Tips = () => {
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-green-50 rounded-lg shadow-md mt-6">
-      <h2 className="text-2xl font-semibold mb-4 text-green-700 text-center">🌿 Daily Eco Tips</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-green-700 text-center"> Daily Eco Tips</h2>
       <ul className="list-disc list-inside space-y-2 text-gray-700">
         {tips.map((tip, idx) => (
           <li key={idx} className="hover:text-green-900 transition-colors">{tip}</li>
