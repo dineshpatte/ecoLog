@@ -33,7 +33,6 @@ const Navbar = () => {
     <nav className="bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center space-x-2 text-xl font-bold hover:scale-105 transition-transform duration-200"
@@ -43,7 +42,6 @@ const Navbar = () => {
             <span className="hidden sm:block">EcoLog</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-2">
             <Link
               to="/"
@@ -108,7 +106,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile/Tablet Navigation - Icons Only */}
           <div className="flex lg:hidden items-center space-x-1">
             <Link to="/" className="p-2 rounded-full hover:bg-white/20 transition-colors duration-200" title="Home">
               <Home className="h-5 w-5" />

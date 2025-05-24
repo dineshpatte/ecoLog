@@ -33,9 +33,7 @@ function App() {
             <Route path="/updatedetails" element={<UpdateAccount />} />
             <Route path="/about" element={<About />} />
 
-            {/* Remove these routes unless you want separate pages for Tips or Rewards */}
-            {/* <Route path="/tips" element={<Tips />} />
-            <Route path="/rewards" element={<Rewards />} /> */}
+           
           </Routes>
         </main>
       </div>

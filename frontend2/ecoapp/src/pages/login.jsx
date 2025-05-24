@@ -42,7 +42,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-2 mb-4">
             <div className="p-3 bg-green-100 rounded-full">
@@ -55,7 +54,6 @@ const Login = () => {
           <p className="text-gray-600 mt-2">Sign in to continue your eco journey</p>
         </div>
 
-        {/* Login Form */}
         <div className="bg-white/80 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/50">
           {loginError && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -64,7 +62,6 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Email Address</label>
               <div className="relative">
@@ -83,7 +80,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <div className="relative">
@@ -113,7 +109,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -130,7 +125,6 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Additional Actions */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
@@ -150,7 +144,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
